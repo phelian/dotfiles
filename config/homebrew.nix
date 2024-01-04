@@ -29,6 +29,10 @@
       "discord"
       "whatsapp"
       "telegram"
+      # "postico" Download 1 manually
+      "google-drive"
+      "gitx"
+      "linear-linear"
     ];
   };
 }
