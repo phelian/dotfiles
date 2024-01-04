@@ -15,7 +15,6 @@ Then you can run `make update` in the root of your nix configuration to deploy y
 
 ## Configuration Structure
 
-Your current nix-darwin configuration's structure should be as follows:
 
 ```bash
 › tree
@@ -39,4 +38,3 @@ Your current nix-darwin configuration's structure should be as follows:
 
 ### TODO
 * Home manager downgrade to 23.11
-* KubePS1 prompt (/Users/felix/.zshenv:8: command not found: kube_ps1)
