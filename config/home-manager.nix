@@ -22,5 +22,6 @@
       slack
       docker
       tree
+      ack
     ];
 }
