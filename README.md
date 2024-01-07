@@ -1,6 +1,6 @@
 # Nix darwin / Home manager
 
-This is my nix-darwin/home-manager/nix files that is heavily based on [ryan4yin](https://github.com/ryan4yin/nix-darwin-kickstarter) [jmatsushita](https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050) and [phlmn](https://github.com/phlmn/nix-darwin-config/tree/main) and others.
+This is my nix-darwin/home-manager/nix files that is heavily based on [ryan4yin](https://github.com/ryan4yin/nix-darwin-kickstarter) [jmatsushita](https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050), [phlmn](https://github.com/phlmn/nix-darwin-config/tree/main), [AxelTLarsson](https://github.com/AxelTLarsson/dotfiles) and others.
 
 I leave all devtools out of this as they will be installed / project basis on direnv level instead.
 
@@ -24,6 +24,3 @@ Afterwards
 `build` Build and show updates
 `switch` Update system
 
-### TODO
-
-- Home manager downgrade to 23.11
