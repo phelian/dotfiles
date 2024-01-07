@@ -21,7 +21,8 @@
       obsidian
       spotify
       slack
-      docker
+      discord
+      docker # cli
       tree
       ack
     ];

@@ -12,13 +12,6 @@
       cleanup = "zap";
     };
 
-    # taps = [
-    #   # "homebrew/cask"
-    #   "homebrew/cask-fonts"
-    #   "homebrew/services"
-    #   "homebrew/cask-versions"
-    # ];
-
     # `brew install`
     brews = [
     ];
@@ -26,7 +19,6 @@
     # `brew install --cask`
     casks = [
       "google-chrome"
-      "discord"
       "whatsapp"
       "telegram"
       # "postico" Download 1 manually
