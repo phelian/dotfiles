@@ -37,11 +37,25 @@
 
     sessionVariables = {
       EDITOR = "vim";
-      # PROMPT = "$(kube_ps1) $PROMPT";
     };
 
     profileExtra = ''
       eval "$(/opt/homebrew/bin/brew shellenv)"
     '';
+
+    initExtra = ''
+      function extra_space() {
+        if [[ $KUBE_PS1_ENABLED == "on" ]]; then
+          echo " ";
+        fi
+      }
+
+      export PROMPT='$(kube_ps1)$(extra_space)'$PROMPT
+    '';
+
+    dirHashes = {
+      dotfiles = "$HOME/src/phelian/dotfiles";
+      dl  = "$HOME/Downloads";
+    };
   };
 }
