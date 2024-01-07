@@ -3,6 +3,7 @@
     home.stateVersion = "23.11";
     home.username = "felix";
     home.homeDirectory = "/Users/felix";
+    home.enableNixpkgsReleaseCheck = false;
 
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
