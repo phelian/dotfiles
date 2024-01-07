@@ -39,5 +39,9 @@
       EDITOR = "vim";
       # PROMPT = "$(kube_ps1) $PROMPT";
     };
+
+    profileExtra = ''
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    '';
   };
 }
