@@ -47,7 +47,7 @@
       update = pkgs.writeScriptBin "update" "nix flake update --commit-lock-file";
       build = pkgs.writeShellApplication {
         name = "build";
-        runtimeInputs = [ pkgs.nvd home-manager ];
+        runtimeInputs = [ pkgs.nvd pkgs.home-manager ];
         text = ''
           # first run: no current generation exists so use ./result (diff against oneself)
           current=$( (home-manager generations 2> /dev/null || echo result) | head -n 1 | awk '{ print $7 }')
