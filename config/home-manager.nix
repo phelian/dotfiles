@@ -13,6 +13,7 @@
       ../modules/home-manager/git.nix
       ../modules/home-manager/zsh.nix
       ../modules/home-manager/vscode.nix
+      # ../modules/home-manager/chrome.nix # Not available for apple silicon
       ./oh-my-zsh/default.nix
     ];
 
@@ -23,6 +24,7 @@
       slack
       discord
       docker # cli
+      # bruno # Not available for apple silicon
       tree
       ack
     ];

@@ -21,6 +21,8 @@
     defaults = {
       menuExtraClock.Show24Hour = true;                        # show 24 hour clock
       NSGlobalDomain."com.apple.swipescrolldirection" = false; # Disable natural scrolling
+      loginwindow.GuestEnabled = false;
+      dock.orientation = "right";
     };
   };
 

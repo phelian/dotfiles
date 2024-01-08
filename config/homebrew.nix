@@ -25,6 +25,7 @@
       "google-drive"
       "gitx"
       "linear-linear"
+      "bruno" # home manager does not have aarch64
     ];
   };
 }
