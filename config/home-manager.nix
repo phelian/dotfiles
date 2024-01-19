@@ -24,6 +24,10 @@
       slack
       discord
       docker # cli
+
+      # work customer #3
+      keepassxc
+
       # bruno # Not available for apple silicon
       tree
       ack
