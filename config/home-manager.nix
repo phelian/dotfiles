@@ -24,6 +24,9 @@
       slack
       discord
       docker # cli
+      watch
+
+      adafruit-nrfutil
 
       # work customer #3
       keepassxc
