@@ -22,6 +22,7 @@
         # IDE
         "files.trimTrailingWhitespace" = true;
         "editor.formatOnSave" = true;
+        "explorer.confirmDragAndDrop" = false;
 
         # Golang
         "go.formatTool" = "gofmt";
