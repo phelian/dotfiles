@@ -51,6 +51,7 @@
       }
 
       export PROMPT='$(kube_ps1)$(extra_space)'$PROMPT
+      export USE_NIX=true
     '';
 
     dirHashes = {

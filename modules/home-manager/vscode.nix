@@ -16,6 +16,9 @@
         charliermarsh.ruff
         bbenoist.nix
         redhat.vscode-yaml
+        nrwl.angular-console
+        esbenp.prettier-vscode
+        #firsttris.vscode-jest-runner
       ]);
 
       userSettings = {

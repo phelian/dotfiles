@@ -12,7 +12,7 @@
       ../modules/home-manager/direnv.nix
       ../modules/home-manager/git.nix
       ../modules/home-manager/zsh.nix
-      ../modules/home-manager/vscode.nix
+      # ../modules/home-manager/vscode.nix
       # ../modules/home-manager/chrome.nix # Not available for apple silicon
       ./oh-my-zsh/default.nix
     ];
@@ -23,7 +23,7 @@
       spotify
       slack
       discord
-      docker # cli
+      # docker # cli
       watch
 
       adafruit-nrfutil
