@@ -25,11 +25,10 @@
       discord
       # docker # cli
       watch
+      asciinema
+      # agg Does not compile, using homebrew
 
       adafruit-nrfutil
-
-      # work customer #3
-      keepassxc
 
       # bruno # Not available for apple silicon
       tree

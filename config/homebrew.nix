@@ -14,6 +14,7 @@
 
     # `brew install`
     brews = [
+      "agg"
     ];
 
     # `brew install --cask`

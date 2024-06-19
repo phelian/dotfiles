@@ -4,7 +4,10 @@
     enable = true;
     syntaxHighlighting.enable = true;
     enableCompletion = true;
-    enableAutosuggestions = true;
+
+    autosuggestion = {
+      enable = true;
+    };
 
     shellAliases = {
       gs = "git status";
