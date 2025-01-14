@@ -13,6 +13,7 @@
       gs = "git status";
       w = "watch 'kubectl get pods --field-selector=status.phase!=Failed,status.phase!=Succeeded'";
       gpup = "git push --set-upstream origin $(git_current_branch)";
+      ls = "ls --color=auto";
     };
 
     oh-my-zsh = {
