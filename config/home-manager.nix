@@ -18,6 +18,7 @@
     ];
 
     home.packages = with pkgs; [
+      coreutils
       iterm2
       obsidian
       spotify

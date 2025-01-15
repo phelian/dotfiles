@@ -13,7 +13,6 @@
       gs = "git status";
       w = "watch 'kubectl get pods --field-selector=status.phase!=Failed,status.phase!=Succeeded'";
       gpup = "git push --set-upstream origin $(git_current_branch)";
-      ls = "ls -G --color=auto";
     };
 
     oh-my-zsh = {
@@ -60,6 +59,7 @@
 
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
+      alias ls='ls -G --color=auto'
     '';
 
     dirHashes = {
