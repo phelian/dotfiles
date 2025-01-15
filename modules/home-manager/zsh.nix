@@ -13,7 +13,7 @@
       gs = "git status";
       w = "watch 'kubectl get pods --field-selector=status.phase!=Failed,status.phase!=Succeeded'";
       gpup = "git push --set-upstream origin $(git_current_branch)";
-      ls = "ls --color=auto";
+      ls = "ls -G --color=auto";
     };
 
     oh-my-zsh = {
@@ -45,6 +45,7 @@
 
     profileExtra = ''
       eval "$(/opt/homebrew/bin/brew shellenv)"
+      eval $(dircolors -b)
     '';
 
     initExtra = ''
