@@ -2,9 +2,7 @@
   description = "Nix for felix macOS configuration";
 
   inputs = {
-    # nixpkgs-unstable.url = "github:NixOs/nixpkgs/nixpkgs-unstable";
-    nixpkgs.url = "github:NixOs/nixpkgs/nixos-24.05";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
+    nixpkgs.url = "github:NixOs/nixpkgs/nixos-unstable";
     darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
