@@ -56,10 +56,14 @@
 
       export PROMPT='$(kube_ps1)$(extra_space)'$PROMPT
       export USE_NIX=true
+      export PATH=$PATH:$HOME/bin
 
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
       alias ls='ls -G --color=auto'
+
+      # fzf: make alt-c cd work https://github.com/junegunn/fzf/issues/164
+      bindkey "ç" fzf-cd-widget
     '';
 
     dirHashes = {

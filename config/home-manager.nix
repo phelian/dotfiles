@@ -9,6 +9,7 @@
     programs.home-manager.enable = true;
 
     imports = [
+      ../modules/home-manager/fzf.nix
       ../modules/home-manager/direnv.nix
       ../modules/home-manager/git.nix
       ../modules/home-manager/zsh.nix
