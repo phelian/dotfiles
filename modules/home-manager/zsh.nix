@@ -57,6 +57,7 @@
       export PROMPT='$(kube_ps1)$(extra_space)'$PROMPT
       export USE_NIX=true
       export PATH=$PATH:$HOME/bin
+      export HISTSIZE=100000
 
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
