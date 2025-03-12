@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 {
-    home.stateVersion = "24.05";
+    home.stateVersion = "25.05";
     home.username = "felix";
     home.homeDirectory = "/Users/felix";
     home.enableNixpkgsReleaseCheck = false;
