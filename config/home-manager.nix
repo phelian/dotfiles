@@ -23,21 +23,26 @@
       coreutils
       iterm2
       obsidian
-      spotify
-      slack
-      discord
+
+      # Haxx
       just
       kubectx
-
-      # docker # cli
-      watch
-      asciinema
-      # agg Does not compile, using homebrew
-
       adafruit-nrfutil
-
-      # bruno # Not available for apple silicon
+      bruno
       tree
       ack
+      watch
+      asciinema
+      # docker # cli
+
+      asciinema-agg
+
+      # Entertainment
+      spotify
+
+      # Communication
+      # whatsapp-for-mac
+      slack
+      discord
     ];
 }

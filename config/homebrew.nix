@@ -14,7 +14,6 @@
 
     # `brew install`
     brews = [
-      "agg"
     ];
 
     # `brew install --cask`
@@ -22,11 +21,10 @@
       "google-chrome"
       "whatsapp"
       "telegram"
-      # "postico" Download 1 manually
       "google-drive"
       "gitx"
       "linear-linear"
-      "bruno" # home manager does not have aarch64
+      # "postico" Download 1 manually
     ];
   };
 }
