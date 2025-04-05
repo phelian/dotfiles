@@ -64,6 +64,10 @@
       alias ls='ls -G --color=auto'
 
       # fzf: make alt-c cd work https://github.com/junegunn/fzf/issues/164
+
+      export FZF_ALT_C_OPTS="--walker-skip='.git,node_modules,.venv,cdk.out,.direnv,__pycache__,dist,build,.terraform, \
+        .idea,.vscode,.Trash,.cargo,.go,tmp,.nx,Downloads,Desktop,Documents,Library,Movies,Music,Pictures,Public, \
+        .docker,.cache,.colima,go/bin/**,go/src/**,go/pkg/**,.nix-profile'"
       bindkey "ç" fzf-cd-widget
     '';
 

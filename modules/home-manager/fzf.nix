@@ -2,19 +2,7 @@
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
-    defaultCommand = ''
-  rg --files --hidden --follow \
-    --glob '!.git/*' \
-    --glob '!node_modules/*' \
-    --glob '!.venv/*' \
-    --glob '!build/*' \
-    --glob '!dist/*' \
-    --glob '!__pycache__/*' \
-    --glob '!.go/*' \
-    --glob '!tmp/*' \
-    --glob '!cache/*' \
-    --glob '!.direnv/*'
-'';
+    defaultCommand = ''rg --files --hidden --follow'';
 
     defaultOptions = let
       theme = import ./rose-pine.nix;

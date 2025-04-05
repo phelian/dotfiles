@@ -13,7 +13,7 @@
       ../modules/home-manager/direnv.nix
       ../modules/home-manager/git.nix
       ../modules/home-manager/zsh.nix
-      # ../modules/home-manager/ghostty.nix broken
+      # ../modules/home-manager/ghostty.nix # broken
       # ../modules/home-manager/vscode.nix
       # ../modules/home-manager/chrome.nix # Not available for apple silicon
       ./oh-my-zsh/default.nix
@@ -33,15 +33,13 @@
       ack
       watch
       asciinema
-      # docker # cli
-
       asciinema-agg
 
       # Entertainment
       spotify
 
       # Communication
-      # whatsapp-for-mac
+      # whatsapp-for-mac # not working
       slack
       discord
     ];
