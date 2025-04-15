@@ -11,6 +11,7 @@
     imports = [
       ../modules/home-manager/fzf.nix
       ../modules/home-manager/zoxide.nix
+      ../modules/home-manager/fd.nix
       ../modules/home-manager/direnv.nix
       ../modules/home-manager/git.nix
       ../modules/home-manager/zsh.nix
@@ -35,7 +36,6 @@
       watch
       asciinema
       asciinema-agg
-      fd
 
       # Entertainment
       spotify
