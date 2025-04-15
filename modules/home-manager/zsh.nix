@@ -62,6 +62,7 @@
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
       alias ls='ls -G --color=auto'
+      eval $(thefuck --alias)
 
       # fzf: make alt-c cd work https://github.com/junegunn/fzf/issues/164
 
