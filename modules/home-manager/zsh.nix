@@ -25,6 +25,7 @@
         "kube-ps1"
         "kubectl"
         "docker"
+        "per-directory-history"
       ];
       custom = "$HOME/.oh-my-custom";
       theme = "phelian";
