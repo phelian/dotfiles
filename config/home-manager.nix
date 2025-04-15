@@ -19,7 +19,7 @@
       ../modules/home-manager/zsh.nix
       # ../modules/home-manager/ghostty.nix # broken
       # ../modules/home-manager/vscode.nix
-      # ../modules/home-manager/chrome.nix # Not available for apple silicon
+      ../modules/home-manager/chrome.nix
       ./oh-my-zsh/default.nix
     ];
 
