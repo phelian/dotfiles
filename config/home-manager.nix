@@ -38,6 +38,7 @@
       watch
       asciinema
       asciinema-agg
+      httpie
 
       # Entertainment
       spotify
