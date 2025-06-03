@@ -56,7 +56,8 @@
         name = "switch";
         runtimeInputs = [ pkgs.home-manager ];
         text = ''
-          darwin-rebuild switch --flake ".#$(hostname -s | awk '{ print tolower($1) }')"'';
+          darwin-rebuild switch --flake ".#$(hostname -s | awk '{ print tolower($1) }')";
+          /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u'';
       };
     in {
       devShell = pkgs.mkShell { buildInputs = [ update build switch ]; };

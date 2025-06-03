@@ -1,4 +1,4 @@
-{ pkgs, ...}: 
+{ pkgs, ...}:
 {
   imports = [
     ../config/homebrew.nix
@@ -13,5 +13,6 @@
 
   environment.systemPackages = with pkgs; [
     # _1password_gui # https://github.com/NixOS/nixpkgs/issues/254944
+    pay-respects
   ];
 }

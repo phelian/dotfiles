@@ -13,11 +13,11 @@
     };
 
     # `brew install`
-    brews = [
-    ];
+    brews = [];
 
     # `brew install --cask`
     casks = [
+      "google-chrome"
       "whatsapp"
       "telegram"
       "google-drive"
