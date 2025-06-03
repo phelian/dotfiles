@@ -4,7 +4,7 @@
     enableAlias = true;
     enableZshIntegration = true;
     settings = {
-      preset = "protanopia-dark";
+      preset = "dark";
       paging = "never";
     };
   };

@@ -57,11 +57,12 @@
 
       function watch() {
         local input="$*"
-
-        # Replace 'kubectl' with 'kubecolor' at the start of the string using sed
         input=$(echo "$input" | sed 's/^kubectl /kubecolor /')
 
-        KUBECOLOR_FORCE_COLOR=1 command watch -c "script -q /dev/null bash -c \"$input\""
+        # Escape for bash -c
+        input_escaped=$(printf "%q" "$input")
+
+        KUBECOLOR_FORCE_COLOR=1 command watch -c "script -q /dev/null bash -c $input_escaped"
       }
 
       # Make Zsh history instantly written and shared across terminals
@@ -78,6 +79,7 @@
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
       alias ls='ls -G --color=auto'
+      alias kubectl='kubecolor --kubecolor-theme=protanopia-dark'
 
       # fzf: make alt-c cd work https://github.com/junegunn/fzf/issues/164
       export FZF_ALT_C_OPTS="--walker-skip='.git,node_modules,.venv,cdk.out,.direnv,__pycache__,dist,build,.terraform, \
