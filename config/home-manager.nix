@@ -41,6 +41,10 @@
       asciinema
       asciinema-agg
       httpie
+      gh
+      delta
+      claude-code
+      openssl
 
       # Entertainment
       spotify
