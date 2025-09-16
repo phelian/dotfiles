@@ -46,6 +46,7 @@
     profileExtra = ''
       eval "$(/opt/homebrew/bin/brew shellenv)"
       eval $(dircolors -b)
+      eval "$(zoxide init zsh --cmd cd)"
     '';
 
     initContent = ''
