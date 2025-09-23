@@ -10,6 +10,7 @@
 
     imports = [
       ../modules/home-manager/fzf.nix
+      ../modules/home-manager/atuin.nix
       ../modules/home-manager/zoxide.nix
       ../modules/home-manager/fd.nix
       # ../modules/home-manager/thefuck.nix
