@@ -66,6 +66,10 @@
         KUBECOLOR_FORCE_COLOR=1 command watch -c "script -q /dev/null bash -c $input_escaped"
       }
 
+      pretty_path() {
+        echo "$PATH" | tr ':' '\n'
+      }
+
       # Make Zsh history instantly written and shared across terminals
       setopt share_history
       setopt hist_save_no_dups
@@ -80,6 +84,7 @@
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
       alias ls='ls -G --color=auto'
+      alias copy='clipcopy'
       alias kubectl='kubecolor --kubecolor-theme=protanopia-dark'
 
       # fzf: make alt-c cd work https://github.com/junegunn/fzf/issues/164
