@@ -16,7 +16,7 @@
       # ../modules/home-manager/thefuck.nix
       ../modules/home-manager/direnv.nix
       ../modules/home-manager/git.nix
-      ../modules/home-manager/gitui.nix
+      # ../modules/home-manager/gitui.nix # temporarily disabled due to build issues on Apple Silicon
       ../modules/home-manager/zsh.nix
       ../modules/home-manager/eza.nix
       ../modules/home-manager/kubecolor.nix
