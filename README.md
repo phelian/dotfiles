@@ -12,6 +12,19 @@ The prompt is configured in `config/oh-my-zsh/themes/phelian.zsh-theme` and incl
 - Kubectl context (left side, only when active)
 - GCloud account and project (right side, only when logged in)
 
+### Toggle Prompt Style
+
+You can switch between single-line and multi-line prompt styles:
+
+```bash
+toggle_prompt
+```
+
+- **Single-line**: Everything on one line (default)
+- **Multi-line**: Prompt info on one line, cursor on the next
+
+Your preference is saved and persists across terminal sessions.
+
 ### Private GCloud Account Display
 
 The zsh prompt includes gcloud account information on the right side. To add custom displays for work or private accounts without exposing them in your public dotfiles, create a private configuration file:
