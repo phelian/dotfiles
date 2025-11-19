@@ -2,7 +2,7 @@
   programs.git = {
     enable = true;
     userName = "Alexander Félix";
-    userEmail = "alexander.felix83@gmail.com";
+    userEmail = "alexander@fogpipe.com";
 
     ignores = [ ".DS_Store" ];
 
