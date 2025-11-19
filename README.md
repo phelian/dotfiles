@@ -46,6 +46,22 @@ function custom_gcloud_account_display() {
 - Fast - reads config files directly instead of running CLI commands
 - Customizable colors using zsh color codes: `$fg[color]` and `$reset_color`
 
+### Private Environment Variables
+
+For sensitive environment variables (API keys, tokens, credentials), create a private file that won't be committed:
+
+**File: `~/.private-env.zsh`** (git-ignored, lives outside this repo)
+
+```zsh
+# Private environment variables
+export FOO=BAR
+
+# Work-specific env vars
+export COMPANY_API_KEY="xxxxxxxxxxxx"
+```
+
+This file is automatically sourced during shell initialization if it exists.
+
 ## Prerequisites
 
 1. Install Nix package manager via [Nix Official](https://nixos.org/download.html#nix-install-macos) or [The Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer)

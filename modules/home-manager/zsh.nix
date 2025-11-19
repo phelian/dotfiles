@@ -37,6 +37,7 @@
         file = "nix-shell.plugin.zsh";
         src = "${pkgs.zsh-nix-shell}/share/zsh-nix-shell";
       }
+      # Removed zsh-gcloud-prompt - replaced with custom_gcloud_prompt function
     ];
 
     sessionVariables = {
@@ -72,6 +73,11 @@
 
       export PATH=$PATH:$HOME/bin
       export HISTSIZE=1000000
+
+      # Source private environment variables if they exist
+      # This file is git-ignored and allows you to set sensitive env vars
+      # See README.md for details
+      [[ -f "$HOME/.private-env.zsh" ]] && source "$HOME/.private-env.zsh"
 
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
