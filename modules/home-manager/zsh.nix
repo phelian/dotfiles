@@ -50,12 +50,6 @@
     '';
 
     initContent = ''
-      function extra_space() {
-        if [[ $KUBE_PS1_ENABLED == "on" ]]; then
-          echo " ";
-        fi
-      }
-
       function watch() {
         local input="$*"
         input=$(echo "$input" | sed 's/^kubectl /kubecolor /')
@@ -76,7 +70,6 @@
       setopt hist_ignore_space
       setopt hist_find_no_dups
 
-      export PROMPT='$(kube_ps1)$(extra_space)'$PROMPT
       export PATH=$PATH:$HOME/bin
       export HISTSIZE=1000000
       # [[ -f "$HOME/.shared-history-paths.zsh" ]] && source "$HOME/.shared-history-paths.zsh"

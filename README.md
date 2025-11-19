@@ -4,6 +4,48 @@ This is my nix-darwin/home-manager/nix files that is heavily based on [ryan4yin]
 
 I leave all devtools out of this as they will be installed / project basis on direnv level instead.
 
+## Custom Prompt Configuration
+
+The prompt is configured in `config/oh-my-zsh/themes/phelian.zsh-theme` and includes:
+- Git repository name (when in a git repo) or current directory
+- Git branch with oh-my-zsh styling
+- Kubectl context (left side, only when active)
+- GCloud account and project (right side, only when logged in)
+
+### Private GCloud Account Display
+
+The zsh prompt includes gcloud account information on the right side. To add custom displays for work or private accounts without exposing them in your public dotfiles, create a private configuration file:
+
+**File: `~/.gcloud-prompt-accounts.zsh`** (git-ignored, lives outside this repo)
+
+```zsh
+# Private gcloud account prompt configurations
+function custom_gcloud_account_display() {
+  local account="$1"
+  local project="$2"
+
+  # Example: Work account with custom colors
+  if [[ "$account" == "you@work.com" ]]; then
+    if [[ -n "$project" ]]; then
+      echo "%{$fg[yellow]%}[work%{$reset_color%}|%{$fg[cyan]%}$project%{$reset_color%}] "
+    else
+      echo "%{$fg[yellow]%}[work]%{$reset_color%} "
+    fi
+    return
+  fi
+
+  # Return empty to fall back to default public accounts
+  echo ""
+}
+```
+
+**Features:**
+- Only displays if `gcloud` is installed
+- Shows nothing if not logged in to gcloud
+- Shows nothing if no kubectl context is active
+- Fast - reads config files directly instead of running CLI commands
+- Customizable colors using zsh color codes: `$fg[color]` and `$reset_color`
+
 ## Prerequisites
 
 1. Install Nix package manager via [Nix Official](https://nixos.org/download.html#nix-install-macos) or [The Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer)
