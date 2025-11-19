@@ -72,7 +72,6 @@
 
       export PATH=$PATH:$HOME/bin
       export HISTSIZE=1000000
-      # [[ -f "$HOME/.shared-history-paths.zsh" ]] && source "$HOME/.shared-history-paths.zsh"
 
       bindkey "\e\e[D" backward-word # ALT-left-arrow  ⌥ + ←
       bindkey "\e\e[C" forward-word  # ALT-right-arrow ⌥ + →
