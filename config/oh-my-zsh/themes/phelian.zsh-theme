@@ -1,5 +1,8 @@
 if [ $UID -eq 0 ]; then CARETCOLOR="red"; else CARETCOLOR="blue"; fi
 
+# Enable command substitution in prompts
+setopt prompt_subst
+
 # Source private gcloud account configurations if they exist
 # This file is git-ignored and allows you to add work/private account displays
 [[ -f "$HOME/.gcloud-prompt-accounts.zsh" ]] && source "$HOME/.gcloud-prompt-accounts.zsh"
@@ -99,17 +102,19 @@ else
 fi
 
 function build_multiline_prompt() {
-  # Build the left side
-  local left_prompt="$(build_custom_prompt)%{${fg[green]}%}$(git_repo_name) $(git_prompt_info)%{${reset_color}%}"
+  # Build components
+  local kube_part="$(build_custom_prompt)"
+  local repo_part="$(git_repo_name)"
+  local branch_part="$(git_prompt_info)"
+  local gcloud_part="$(custom_gcloud_prompt)"
 
-  # Build the right side (gcloud info)
-  local right_prompt="$(custom_gcloud_prompt)"
+  # Build the full left side with colors
+  local left_prompt="${kube_part}%{${fg[green]}%}${repo_part} ${branch_part}%{${reset_color}%}"
 
-  # Strip color codes to get visible lengths
-  local left_visible="${(S%%)left_prompt//\%\{*\%\}}"
-  local right_visible="${(S%%)right_prompt//\%\{*\%\}}"
-  local left_length=${#left_visible}
-  local right_length=${#right_visible}
+  # Calculate visible length using zsh's prompt expansion
+  # The %% forces literal %, then we count the expanded length
+  local left_length=${#${(S%%)left_prompt//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+  local right_length=${#${(S%%)gcloud_part//(\%([KF1]|)\{*\}|\%[Bbkf])}}
 
   # Calculate padding (leave at least 1 space)
   local total_length=$((left_length + right_length))
@@ -120,8 +125,8 @@ function build_multiline_prompt() {
   fi
 
   # Build the first line with padding
-  local spaces=$(printf ' %.0s' {1..$padding})
-  echo "${left_prompt}${spaces}${right_prompt}"
+  local spaces="${(l:$padding:: :)}"
+  echo "${left_prompt}${spaces}${gcloud_part}"
 }
 
 function set_prompt_style() {
