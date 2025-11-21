@@ -86,7 +86,30 @@ function build_custom_prompt() {
 function git_repo_name() {
   local repo_path=$(git rev-parse --show-toplevel 2>/dev/null)
   if [[ -n "$repo_path" ]]; then
-    echo "$(basename "$repo_path")"
+    local repo_name="$(basename "$repo_path")"
+    local current_path="$PWD"
+
+    # Get relative path from repo root
+    local rel_path="${current_path#$repo_path}"
+    rel_path="${rel_path#/}"  # Remove leading slash
+
+    if [[ -z "$rel_path" ]]; then
+      # At repo root
+      echo "$repo_name"
+    else
+      # Split path into components
+      local -a path_parts=("${(@s:/:)rel_path}")
+      local num_parts=${#path_parts}
+
+      if [[ $num_parts -le 3 ]]; then
+        # Show repo name + full subpath (up to 3 levels)
+        echo "$repo_name/$rel_path"
+      else
+        # More than 3 levels deep - show last 3 with ../
+        local last_three="${path_parts[-3]}/${path_parts[-2]}/${path_parts[-1]}"
+        echo "../$last_three"
+      fi
+    fi
   else
     echo "%3~"
   fi
