@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
   claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
@@ -64,10 +64,6 @@ in
       slack
       discord
     ];
-
-    home.activation.setScrollDirection = lib.hm.dag.entryAfter ["writeBoundary"] ''
-       /usr/bin/defaults write -g com.apple.swipescrolldirection -bool false
-    '';
 
     # Claude Code configuration
     home.file.".claude" = {

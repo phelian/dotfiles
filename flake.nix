@@ -56,10 +56,17 @@
         name = "switch";
         runtimeInputs = [ pkgs.home-manager ];
         text = ''
-          darwin-rebuild switch --flake ".#$(hostname -s | awk '{ print tolower($1) }')";
+          darwin-rebuild switch --flake ".#$(hostname -s | awk '{ print tolower($1) }')"
+          /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u'';
+      };
+      post-switch = pkgs.writeShellApplication {
+        name = "post-switch";
+        text = ''
+          defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+          killall cfprefsd 2>/dev/null || true
           /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u'';
       };
     in {
-      devShell = pkgs.mkShell { buildInputs = [ update build switch ]; };
+      devShell = pkgs.mkShell { buildInputs = [ update build switch post-switch ]; };
     });
 }
