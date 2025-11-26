@@ -1,12 +1,12 @@
 {
   programs.git = {
     enable = true;
-    userName = "Alexander Félix";
-    userEmail = "alexander@fogpipe.com";
 
     ignores = [ ".DS_Store" ];
 
-    extraConfig = {
+    settings = {
+      user.name = "Alexander Félix";
+      user.email = "alexander@fogpipe.com";
       init.defaultBranch = "main";
       merge.ff = "only";
       push.default = "simple";
