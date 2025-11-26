@@ -33,7 +33,6 @@
       # Haxx
       just
       kubectx
-      adafruit-nrfutil
       bruno
       tree
       ack
