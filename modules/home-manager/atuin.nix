@@ -6,6 +6,7 @@
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
       search_mode = "fuzzy";
+      flags = [ "--disable-up-arrow" ];
     };
   };
 }
