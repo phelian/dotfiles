@@ -1,4 +1,15 @@
 { pkgs, lib, ... }:
+let
+  # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
+  claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
+    version = "2.0.54";
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.54.tgz";
+      hash = "sha256-EVZueeW1MewYmQSHp4flcShqHy5H0S4gET3XtK+ttQA=";
+    };
+  });
+  # AUTO_UPDATE_END
+in
 {
     home.stateVersion = "25.05";
     home.username = "felix";
@@ -42,7 +53,7 @@
       httpie
       gh
       delta
-      claude-code
+      claude-code-latest
       openssl
 
       # Entertainment
