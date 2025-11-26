@@ -69,4 +69,10 @@ in
        /usr/bin/defaults write -g com.apple.swipescrolldirection -bool false
     '';
 
+    # Claude Code configuration
+    home.file.".claude" = {
+      source = ../.claude;
+      recursive = true;
+    };
+
 }
