@@ -3,6 +3,24 @@ if [ $UID -eq 0 ]; then CARETCOLOR="red"; else CARETCOLOR="blue"; fi
 # Enable command substitution in prompts
 setopt prompt_subst
 
+# Git prompt styling - MUST be defined before any function calls
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"
+ZSH_THEME_GIT_PROMPT_SUFFIX="› %{$reset_color%}"
+
+# Simple git branch display - doesn't rely on oh-my-zsh
+function git_branch_info() {
+  local branch
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return 0
+
+  # Check for dirty status
+  local dirty=""
+  if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+    dirty="*"
+  fi
+
+  echo "%{$fg[yellow]%}‹${branch}${dirty}›%{$reset_color%}"
+}
+
 # Source private gcloud account configurations if they exist
 # This file is git-ignored and allows you to add work/private account displays
 [[ -f "$HOME/.gcloud-prompt-accounts.zsh" ]] && source "$HOME/.gcloud-prompt-accounts.zsh"
@@ -128,15 +146,18 @@ function build_multiline_prompt() {
   # Build components
   local kube_part="$(build_custom_prompt)"
   local repo_part="$(git_repo_name)"
-  local branch_part="$(git_prompt_info)"
   local gcloud_part="$(custom_gcloud_prompt)"
 
-  # Build the full left side with colors
-  local left_prompt="${kube_part}%{${fg[green]}%}${repo_part} ${branch_part}%{${reset_color}%}"
+  # Build left prompt - we need to call git_prompt_info inline for proper evaluation
+  # First build a version for length calculation (without git_prompt_info)
+  local left_base="${kube_part}%{${fg[green]}%}${repo_part}%{${reset_color}%}"
+
+  # Get git branch info for length calculation
+  local git_info="$(git_branch_info)"
+  local left_for_calc="${left_base} ${git_info}"
 
   # Calculate visible length using zsh's prompt expansion
-  # The %% forces literal %, then we count the expanded length
-  local left_length=${#${(S%%)left_prompt//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+  local left_length=${#${(S%%)left_for_calc//(\%([KF1]|)\{*\}|\%[Bbkf])}}
   local right_length=${#${(S%%)gcloud_part//(\%([KF1]|)\{*\}|\%[Bbkf])}}
 
   # Calculate padding (leave at least 1 space)
@@ -147,9 +168,9 @@ function build_multiline_prompt() {
     padding=1
   fi
 
-  # Build the first line with padding
+  # Build the first line with padding - include git_info
   local spaces="${(l:$padding:: :)}"
-  echo "${left_prompt}${spaces}${gcloud_part}"
+  echo "${left_base} ${git_info}${spaces}${gcloud_part}"
 }
 
 function set_prompt_style() {
@@ -160,7 +181,7 @@ function set_prompt_style() {
     RPROMPT='${return_code}'
   else
     # Single-line prompt: everything on one line
-    PROMPT='$(build_custom_prompt)%{${fg[green]}%}$(git_repo_name) $(git_prompt_info)%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
+    PROMPT='$(build_custom_prompt)%{${fg[green]}%}$(git_repo_name) $(git_branch_info)%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
     RPROMPT='$(custom_gcloud_prompt)${return_code}'
   fi
 }
@@ -180,6 +201,3 @@ function toggle_prompt() {
 
 # Set initial prompt style
 set_prompt_style
-
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"
-ZSH_THEME_GIT_PROMPT_SUFFIX="› %{$reset_color%}"
