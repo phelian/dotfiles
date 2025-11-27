@@ -20,7 +20,7 @@ The user emphasizes intellectual honesty in technical discourse—defend sound a
 
 Code should be simple and functional in style. Never add comments unless explicitly requested. Use TypeScript with Deno for general scripting.
 
-**Git**: Commit messages should be single-line summaries in lowercase (except proper names), with no compound sentences, footers, or conventional commit prefixes. Never mention Claude in messages.
+**Git**: Commit messages should be single-line summaries in lowercase (except proper names), with no compound sentences, footers, or conventional commit prefixes. Never mention Claude in messages. IMPORTANT! always make sure commited files end with a newline
 
 **TypeScript**: Avoid `any` and `let` keywords. Don't use `function`, `interface`, or `class` keywords. Rely on type inference and avoid specifying return types unless necessary.
 
