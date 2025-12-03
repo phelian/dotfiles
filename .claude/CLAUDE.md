@@ -28,6 +28,8 @@ Code should be simple and functional in style. Never add comments unless explici
 
 **Shell**: Always use long-form flags for CLI commands.
 
+**YAML**: Use double quotes for strings.
+
 **README files**: Focus on workflows and practical examples rather than documentation. Avoid duplicating code, mirror documentation, or explaining implementation details.
 
 ## Tools
