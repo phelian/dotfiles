@@ -90,6 +90,12 @@
         .idea,.vscode,.Trash,.cargo,.go,tmp,.nx,Downloads,Desktop,Documents,Library,Movies,Music,Pictures,Public, \
         .docker,.cache,.colima,go/bin/**,go/src/**,go/pkg/**,.nix-profile'"
       bindkey "ç" fzf-cd-widget
+
+      _load_project_completions() {
+        [[ -f .zsh_completions ]] && source .zsh_completions
+      }
+      add-zsh-hook chpwd _load_project_completions
+      _load_project_completions
     '';
 
     dirHashes = {
