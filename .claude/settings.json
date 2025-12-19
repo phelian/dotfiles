@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "alwaysThinkingEnabled": true,
   "permissions": {
     "allow": [
