@@ -37,4 +37,10 @@ awk -v version="${LATEST_VERSION}" -v url="${URL}" -v hash="${SRC_HASH}" '
   !skip
 ' "${CONFIG_FILE}" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "${CONFIG_FILE}"
 
-echo "Updated ${CONFIG_FILE}"
+if ! git diff --quiet "${CONFIG_FILE}"; then
+  git add "${CONFIG_FILE}"
+  git commit --message "update claude-code to ${LATEST_VERSION}"
+  echo "Committed update to version ${LATEST_VERSION}"
+else
+  echo "No changes (already at version ${LATEST_VERSION})"
+fi
