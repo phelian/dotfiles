@@ -2,10 +2,10 @@
 let
   # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
   claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
-    version = "2.0.73";
+    version = "2.0.75";
     src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.73.tgz";
-      hash = "sha256-kQRj8Vd735KyPzPZnoieE4TxUKHoCpnC62Blsh5dbWw=";
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.75.tgz";
+      hash = "sha256-3BdinltHR29yYz+celc46MoZO8qAyLnRkJYhL2b7MFU=";
     };
   });
   # AUTO_UPDATE_END
