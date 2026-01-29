@@ -10,6 +10,16 @@ let
   });
   # AUTO_UPDATE_END
 
+  # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
+  opencode-latest = pkgs.opencode.overrideAttrs (old: {
+    version = "1.1.41";
+    src = pkgs.fetchzip {
+      url = "https://github.com/anomalyco/opencode/archive/refs/tags/v1.1.41.tar.gz";
+      hash = "sha256-p4mZRJ+BQs790hjCOJ9iXzg3JoCa4lqOdCqDRkoEfWw=";
+    };
+  });
+  # OPENCODE_UPDATE_END
+
   gsdVersion = "1.9.6";
   gsdSrc = pkgs.fetchzip {
     url = "https://registry.npmjs.org/get-shit-done-cc/-/get-shit-done-cc-${gsdVersion}.tgz";
@@ -61,7 +71,7 @@ in
       delta
       # claude-code
       claude-code-latest
-      opencode
+      opencode-latest
       openssl
 
       # Entertainment
