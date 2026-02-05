@@ -1,21 +1,26 @@
 { pkgs, ... }:
 let
   # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
-  claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
-    version = "2.1.2";
-    src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.2.tgz";
-      hash = "sha256-PpNXyZ3xoZ/4lCvtErltkdsL/1hDRyiicblvhykgROw=";
-    };
-  });
+  claude-code-latest = pkgs.claude-code;
   # AUTO_UPDATE_END
 
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
+  opencodeVersion = "1.1.51";
+  opencodeSrcHash = "sha256-i9KR5n6bT0p7xLErlgaq2TAj/B7ZbLd9a+4Czg8q/cI=";
+  opencodeNodeModulesHash = "sha256-DChoXNWJFlyyAqeiR06BQMLITwVQXy0wvQs58l0d1Xc=";
+  opencodeSrc = pkgs.fetchFromGitHub {
+    owner = "anomalyco";
+    repo = "opencode";
+    tag = "v${opencodeVersion}";
+    hash = opencodeSrcHash;
+  };
   opencode-latest = pkgs.opencode.overrideAttrs (old: {
-    version = "1.1.41";
-    src = pkgs.fetchzip {
-      url = "https://github.com/anomalyco/opencode/archive/refs/tags/v1.1.41.tar.gz";
-      hash = "sha256-p4mZRJ+BQs790hjCOJ9iXzg3JoCa4lqOdCqDRkoEfWw=";
+    version = opencodeVersion;
+    src = opencodeSrc;
+    node_modules = old.node_modules.overrideAttrs {
+      version = opencodeVersion;
+      src = opencodeSrc;
+      outputHash = opencodeNodeModulesHash;
     };
   });
   # OPENCODE_UPDATE_END
@@ -60,7 +65,7 @@ in
       # Haxx
       just
       kubectx
-      bruno
+      # bruno
       tree
       ack
       watch
