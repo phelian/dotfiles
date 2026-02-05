@@ -1,7 +1,13 @@
 { pkgs, ... }:
 let
   # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
-  claude-code-latest = pkgs.claude-code;
+  claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
+    version = "2.1.31";
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.31.tgz";
+      hash = "sha256-nyTc982mwdela8uH7GO2ubMgD3sqpYmQP0adR4y25Ws=";
+    };
+  });
   # AUTO_UPDATE_END
 
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
