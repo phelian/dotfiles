@@ -41,8 +41,16 @@ function custom_gcloud_prompt() {
     return
   fi
 
-  # Fast gcloud info by reading config file directly
-  local gcloud_config="$HOME/.config/gcloud/configurations/config_default"
+  local active_config="${CLOUDSDK_ACTIVE_CONFIG_NAME:-}"
+  if [[ -z "$active_config" ]]; then
+    active_config="default"
+    local active_config_file="$HOME/.config/gcloud/active_config"
+    if [[ -f "$active_config_file" ]]; then
+      active_config=$(<"$active_config_file")
+    fi
+  fi
+
+  local gcloud_config="$HOME/.config/gcloud/configurations/config_${active_config}"
 
   if [[ ! -f "$gcloud_config" ]]; then
     echo ""
@@ -66,15 +74,11 @@ function custom_gcloud_prompt() {
     fi
   fi
 
-  # Default public accounts
-  if [[ "$account" == "alexander@fogpipe.com" ]]; then
-    if [[ -n "$project" ]]; then
-      echo "%{$fg[green]%}[fogpipe%{$reset_color%}|%{$fg[cyan]%}$project%{$reset_color%}] "
-    else
-      echo "%{$fg[green]%}[fogpipe]%{$reset_color%} "
-    fi
+  # Default: show active configuration name and project
+  if [[ -n "$project" ]]; then
+    echo "%{$fg[green]%}[${active_config}%{$reset_color%}|%{$fg[cyan]%}$project%{$reset_color%}] "
   else
-    echo ""
+    echo "%{$fg[green]%}[${active_config}]%{$reset_color%} "
   fi
 }
 
