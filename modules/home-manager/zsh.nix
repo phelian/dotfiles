@@ -71,7 +71,7 @@
       setopt hist_ignore_space
       setopt hist_find_no_dups
 
-      export PATH=$PATH:$HOME/bin
+      export PATH=$HOME/.local/bin:$PATH:$HOME/bin
       export HISTSIZE=1000000
 
       # Source private environment variables if they exist
