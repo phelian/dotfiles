@@ -187,10 +187,6 @@ devtools are intentionally excluded from this repo - they should be installed pe
 ```
 2. Import it in `config/home-manager.nix`
 
-### Update claude-code version
-
-Run `./update_claude_code.sh` - it auto-updates the version in `config/home-manager.nix`
-
 ### Test changes before applying
 
 ```bash

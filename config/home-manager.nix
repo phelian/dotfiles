@@ -1,15 +1,5 @@
 { pkgs, ... }:
 let
-  # AUTO_UPDATE_START - Do not edit manually, use update-claude-code.sh
-  claude-code-latest = pkgs.claude-code.overrideAttrs (old: {
-    version = "2.1.31";
-    src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.31.tgz";
-      hash = "sha256-nyTc982mwdela8uH7GO2ubMgD3sqpYmQP0adR4y25Ws=";
-    };
-  });
-  # AUTO_UPDATE_END
-
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
   opencodeVersion = "1.1.51";
   opencodeSrcHash = "sha256-i9KR5n6bT0p7xLErlgaq2TAj/B7ZbLd9a+4Czg8q/cI=";
@@ -80,8 +70,6 @@ in
       httpie
       gh
       delta
-      # claude-code
-      claude-code-latest
       opencode-latest
       openssl
 
