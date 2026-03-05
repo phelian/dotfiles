@@ -1,9 +1,9 @@
 { pkgs, ... }:
 let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "1.1.51";
-  opencodeSrcHash = "sha256-i9KR5n6bT0p7xLErlgaq2TAj/B7ZbLd9a+4Czg8q/cI=";
-  opencodeNodeModulesHash = "sha256-DChoXNWJFlyyAqeiR06BQMLITwVQXy0wvQs58l0d1Xc=";
+  opencodeVersion = "1.2.17";
+  opencodeSrcHash = "sha256-4I243hvqQjPU09GsIyQu/3Cv+THKFf5QTbC3x0aO83Q=";
+  opencodeNodeModulesHash = "sha256-orNyesv8Y3vooV1upr+X1CKHUdygyDQ3hmyPVlHC6Zk=";
   opencodeSrc = pkgs.fetchFromGitHub {
     owner = "anomalyco";
     repo = "opencode";
