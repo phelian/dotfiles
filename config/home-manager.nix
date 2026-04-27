@@ -82,10 +82,11 @@ in
       discord
     ];
 
-    # Claude Code configuration
-    home.file.".claude" = {
-      source = ../.claude;
-      recursive = true;
-    };
+    # Claude Code configuration (settings.json intentionally unmanaged so
+    # the plugin manager can write to it)
+    home.file.".claude/CLAUDE.md".source = ../.claude/CLAUDE.md;
+    home.file.".claude/agents" = { source = ../.claude/agents; recursive = true; };
+    home.file.".claude/commands" = { source = ../.claude/commands; recursive = true; };
+    home.file.".claude/skills" = { source = ../.claude/skills; recursive = true; };
 
 }
