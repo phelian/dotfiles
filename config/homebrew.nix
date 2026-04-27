@@ -23,6 +23,7 @@
       "google-drive"
       "gitx"
       "linear-linear"
+      "android-studio"
       # "postico" Download 1 manually
     ];
   };
