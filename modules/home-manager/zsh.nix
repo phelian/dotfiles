@@ -1,5 +1,8 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  ...
+}: {
   programs.zsh = {
     enable = true;
     syntaxHighlighting.enable = true;
@@ -95,11 +98,20 @@
       }
       add-zsh-hook chpwd _load_project_completions
       _load_project_completions
+
+      # Load globally-dropped completions (e.g. fp-cloud's dev shell refreshes
+      # ~/.zsh/completions/_fpcloud). oh-my-zsh owns compinit and runs it before
+      # any home-manager fpath tweak lands, so we source these afterwards —
+      # cobra-style scripts self-register via compdef on source.
+      if [[ -d "$HOME/.zsh/completions" ]]; then
+        for _comp in "$HOME"/.zsh/completions/*(.N); do source "$_comp"; done
+        unset _comp
+      fi
     '';
 
     dirHashes = {
       dotfiles = "$HOME/src/phelian/dotfiles";
-      dl  = "$HOME/Downloads";
+      dl = "$HOME/Downloads";
     };
   };
 }
