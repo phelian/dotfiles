@@ -82,6 +82,20 @@ function custom_gcloud_prompt() {
   fi
 }
 
+function fpcloud_prompt_segment() {
+  # Delegates to fpcloud-ps1.sh (the fpcloud_ps1 function), whose path the fp-cloud
+  # nix dev shell exports as FPCLOUD_PS1_SOURCE. It reads org/project from
+  # ${FPCLOUD_CONFIG_DIR:-~/.fpcloud}/config.yaml — so it follows any per-directory
+  # config override — with no per-prompt process spawn. Composed into the theme's
+  # RPROMPT (below), NOT set from a precmd hook, so it can't clobber the theme's
+  # own RPROMPT. Bracket/symbol/separator are set as locals (zsh dynamic scope
+  # makes them visible to fpcloud_ps1) to avoid polluting the global env.
+  [[ -n "$FPCLOUD_PS1_SOURCE" ]] || { echo ""; return; }
+  [[ -n "$_fpcloud_ps1_loaded" ]] || { source "$FPCLOUD_PS1_SOURCE" 2>/dev/null; _fpcloud_ps1_loaded=1; }
+  local FPCLOUD_PS1_SYMBOL="⎈" FPCLOUD_PS1_SEPARATOR="/" FPCLOUD_PS1_PREFIX="[" FPCLOUD_PS1_SUFFIX="]"
+  echo "$(fpcloud_ps1) "
+}
+
 function smart_kube_ps1() {
   # Only show if kubectl is installed
   if ! command -v kubectl &> /dev/null; then
@@ -150,7 +164,7 @@ function build_multiline_prompt() {
   # Build components
   local kube_part="$(build_custom_prompt)"
   local repo_part="$(git_repo_name)"
-  local gcloud_part="$(custom_gcloud_prompt)"
+  local gcloud_part="$(fpcloud_prompt_segment)$(custom_gcloud_prompt)"
 
   # Build left prompt - we need to call git_prompt_info inline for proper evaluation
   # First build a version for length calculation (without git_prompt_info)
@@ -186,7 +200,7 @@ function set_prompt_style() {
   else
     # Single-line prompt: everything on one line
     PROMPT='$(build_custom_prompt)%{${fg[green]}%}$(git_repo_name) $(git_branch_info)%{${fg_bold[$CARETCOLOR]}%}»%{${reset_color}%} '
-    RPROMPT='$(custom_gcloud_prompt)${return_code}'
+    RPROMPT='$(fpcloud_prompt_segment)$(custom_gcloud_prompt)${return_code}'
   fi
 }
 
