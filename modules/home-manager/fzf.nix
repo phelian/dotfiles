@@ -4,6 +4,8 @@
     enableZshIntegration = true;
     defaultCommand = ''rg --files --hidden --follow'';
 
+    historyWidget.command = "";
+
     defaultOptions = let
       theme = import ./rose-pine.nix;
       # fzf COLOR NAMES:
