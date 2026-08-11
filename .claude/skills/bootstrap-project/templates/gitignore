@@ -1,0 +1,24 @@
+.direnv/
+.DS_Store
+tmp/
+bin/
+
+.env.local
+.env.*.local
+src/backend/.env.local
+
+# dbmate dumps this from the applied migrations; migrations are the source of truth.
+src/backend/db/schema.sql
+
+src/frontend/dist/
+src/frontend/node_modules
+
+# terraform/tofu — local state, providers, and resolved vars (.terraform.lock.hcl is committed)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# fpcloud state-bucket S3 creds ([{{PROJECT}}-state] profile; written by `just s3-profile`)
+.aws-credentials

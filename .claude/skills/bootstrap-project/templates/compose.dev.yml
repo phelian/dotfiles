@@ -1,0 +1,20 @@
+services:
+  db:
+    image: "postgres:18-alpine"
+    environment:
+      POSTGRES_USER: "{{PROJECT}}"
+      POSTGRES_PASSWORD: "{{PROJECT}}"
+      POSTGRES_DB: "{{PROJECT}}_dev"
+    # Non-default host port so several project databases can run at once.
+    ports:
+      - "{{DB_PORT}}:5432"
+    volumes:
+      - "{{PROJECT}}-pgdata:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username={{PROJECT}} --dbname={{PROJECT}}_dev"]
+      interval: "5s"
+      timeout: "3s"
+      retries: 10
+
+volumes:
+  {{PROJECT}}-pgdata:

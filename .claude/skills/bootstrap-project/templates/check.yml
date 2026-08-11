@@ -1,0 +1,53 @@
+name: "check"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: "ubuntu-latest"
+
+    services:
+      postgres:
+        image: "postgres:18-alpine"
+        env:
+          POSTGRES_USER: "{{PROJECT}}"
+          POSTGRES_PASSWORD: "{{PROJECT}}"
+          POSTGRES_DB: "{{PROJECT}}_dev"
+        ports:
+          - "{{DB_PORT}}:5432"
+        options: >-
+          --health-cmd "pg_isready --username={{PROJECT}} --dbname={{PROJECT}}_dev"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: "postgres://{{PROJECT}}:{{PROJECT}}@127.0.0.1:{{DB_PORT}}/{{PROJECT}}_dev?sslmode=disable"
+
+    steps:
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+
+      - uses: "cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342" # v31.11.0
+        with:
+          extra_nix_config: "experimental-features = nix-command flakes"
+
+      - name: "Install frontend dependencies"
+        run: "nix develop --command just deps"
+
+      - name: "Apply migrations"
+        run: "nix develop --command just migrate"
+
+      - name: "Static QA"
+        run: "nix develop --command just static-qa"
+
+      - name: "Tests"
+        run: "nix develop --command just test"
+
+      - name: "Build"
+        run: "nix develop --command just build"
