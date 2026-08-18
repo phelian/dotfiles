@@ -83,17 +83,25 @@ function custom_gcloud_prompt() {
 }
 
 function fpcloud_prompt_segment() {
-  # Delegates to fpcloud-ps1.sh (the fpcloud_ps1 function), whose path the fp-cloud
-  # nix dev shell exports as FPCLOUD_PS1_SOURCE. It reads org/project from
-  # ${FPCLOUD_CONFIG_DIR:-~/.fpcloud}/config.yaml — so it follows any per-directory
-  # config override — with no per-prompt process spawn. Composed into the theme's
-  # RPROMPT (below), NOT set from a precmd hook, so it can't clobber the theme's
-  # own RPROMPT. Bracket/symbol/separator are set as locals (zsh dynamic scope
-  # makes them visible to fpcloud_ps1) to avoid polluting the global env.
-  [[ -n "$FPCLOUD_PS1_SOURCE" ]] || { echo ""; return; }
-  [[ -n "$_fpcloud_ps1_loaded" ]] || { source "$FPCLOUD_PS1_SOURCE" 2>/dev/null; _fpcloud_ps1_loaded=1; }
-  local FPCLOUD_PS1_SYMBOL="⎈" FPCLOUD_PS1_SEPARATOR="/" FPCLOUD_PS1_PREFIX="[" FPCLOUD_PS1_SUFFIX="]"
-  echo "$(fpcloud_ps1) "
+  # Renders whatever PROMPT_SEGMENT_SOURCE points at — a file defining
+  # prompt_segment, exported by a dev shell (fp-cloud's names a /nix/store stub
+  # that loads the renderer out of the fpcloud binary). Generic by contract, so
+  # any project can claim the variable. Composed into the theme's RPROMPT
+  # (below), NOT set from a precmd hook, so it can't clobber the theme's own
+  # RPROMPT. The guard tracks the path rather than a flag: the value is
+  # content-addressed, so a changed renderer must be re-sourced. Symbol is a
+  # local (zsh dynamic scope makes it visible to prompt_segment) to avoid
+  # polluting the global env; the brackets are ours since the renderer only
+  # offers the label.
+  [[ -n "$PROMPT_SEGMENT_SOURCE" && -r "$PROMPT_SEGMENT_SOURCE" ]] || { echo ""; return; }
+  if [[ "$_prompt_segment_loaded" != "$PROMPT_SEGMENT_SOURCE" ]]; then
+    source "$PROMPT_SEGMENT_SOURCE" 2>/dev/null || { echo ""; return; }
+    _prompt_segment_loaded="$PROMPT_SEGMENT_SOURCE"
+  fi
+  local FPCLOUD_PROMPT_SYMBOL="⎈" seg
+  seg="$(prompt_segment)"
+  [[ -n "$seg" ]] || { echo ""; return; }
+  echo "[$seg] "
 }
 
 function smart_kube_ps1() {
