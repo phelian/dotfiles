@@ -4,9 +4,9 @@
   ...
 }: let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "1.18.18";
-  opencodeSrcHash = "sha256-rDVcv8j9KghTDwooPYriTloOMgTyVutud7xKLG2mTmk=";
-  opencodeNodeModulesHash = "sha256-oU7qWOsY2TtVE+Gp2DhSXffm9OghTHcNhzDwwAovwZI=";
+  opencodeVersion = "1.18.27";
+  opencodeSrcHash = "sha256-whpu6YnWe82VXYzHib22OZx/TAlzSWi2D7HAW+1GMII=";
+  opencodeNodeModulesHash = "sha256-13g7po/CIYYN5MoWF2RI5qSREk137szpNxNiVNTFdY8=";
   opencodeSrc = pkgs.fetchFromGitHub {
     owner = "anomalyco";
     repo = "opencode";
