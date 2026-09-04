@@ -73,6 +73,7 @@ in
       delta
       opencode-latest
       openssl
+      exiftool
       inputs.codex-cli-nix.packages.${pkgs.system}.default
 
       # Entertainment
