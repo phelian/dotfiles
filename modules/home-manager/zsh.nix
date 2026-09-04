@@ -107,6 +107,16 @@
         for _comp in "$HOME"/.zsh/completions/*(.N); do source "$_comp"; done
         unset _comp
       fi
+
+      _just() {
+        [[ $words[CURRENT] == -* ]] && { _files; return }
+        local -a names cands
+        names=(''${(z)"$(just --summary 2>/dev/null)"})
+        cands=("''${(@f)$(_CLAP_IFS=$'\n' _CLAP_COMPLETE_INDEX=$((CURRENT-1)) JUST_COMPLETE=zsh just -- "''${words[@]}" 2>/dev/null)}")
+        cands=(''${(M)cands:#(''${(j:|:)~names})(:*|)})
+        _describe -t recipes 'recipe' cands
+      }
+      compdef _just just
     '';
 
     dirHashes = {
