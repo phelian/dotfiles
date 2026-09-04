@@ -109,10 +109,23 @@
       fi
 
       _just() {
-        [[ $words[CURRENT] == -* ]] && { _files; return }
-        local -a names cands
-        names=(''${(z)"$(just --summary 2>/dev/null)"})
+        local -a names cands params
         cands=("''${(@f)$(_CLAP_IFS=$'\n' _CLAP_COMPLETE_INDEX=$((CURRENT-1)) JUST_COMPLETE=zsh just -- "''${words[@]}" 2>/dev/null)}")
+        if [[ $words[CURRENT] == -* ]]; then
+          cands=(''${(M)cands:#-*})
+          _describe -t options 'option' cands
+          return
+        fi
+        names=(''${(z)"$(just --summary 2>/dev/null)"})
+        if (( CURRENT > 2 )) && (( ''${names[(Ie)''${words[2]}]} )); then
+          params=(''${''${(M)''${(f)"$(just --usage ''${words[2]} 2>/dev/null)"}:#  *}## ##})
+          local idx=$((CURRENT - 2))
+          if (( idx <= ''${#params} )); then
+            _message -r "''${params[idx]}"
+            _files
+            return
+          fi
+        fi
         cands=(''${(M)cands:#(''${(j:|:)~names})(:*|)})
         _describe -t recipes 'recipe' cands
       }
