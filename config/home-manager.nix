@@ -23,12 +23,6 @@
     };
   });
   # OPENCODE_UPDATE_END
-
-  gsdVersion = "1.9.6";
-  gsdSrc = pkgs.fetchzip {
-    url = "https://registry.npmjs.org/get-shit-done-cc/-/get-shit-done-cc-${gsdVersion}.tgz";
-    hash = "sha256-mBCzUzbjJ3/DT7mf1FCOMmMtAy8FY5LO30PT8kv7LxA=";
-  };
 in {
   home.stateVersion = "25.05";
   home.username = "felix";
