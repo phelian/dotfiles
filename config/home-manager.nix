@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
   opencodeVersion = "1.18.18";
@@ -73,6 +73,7 @@ in
       delta
       opencode-latest
       openssl
+      inputs.codex-cli-nix.packages.${pkgs.system}.default
 
       # Entertainment
       spotify
