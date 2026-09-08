@@ -96,4 +96,8 @@ in {
     source = ../.claude/skills;
     recursive = true;
   };
+  home.file.".claude/statusline.ts" = {
+    source = ../.claude/statusline.ts;
+    executable = true;
+  };
 }
