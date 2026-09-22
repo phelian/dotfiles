@@ -102,4 +102,8 @@ in {
     source = ../.claude/statusline.ts;
     executable = true;
   };
+  home.file.".claude/themes" = {
+    source = ../.claude/themes;
+    recursive = true;
+  };
 }

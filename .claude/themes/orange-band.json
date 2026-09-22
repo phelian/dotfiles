@@ -1,0 +1,8 @@
+{
+  "name": "Orange band",
+  "base": "dark",
+  "overrides": {
+    "userMessageBackground": "#5c3010",
+    "userMessageBackgroundHover": "#74401a"
+  }
+}
