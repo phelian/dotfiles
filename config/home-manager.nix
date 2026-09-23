@@ -4,27 +4,47 @@
   ...
 }: let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "1.18.29";
-  opencodeSrcHash = "sha256-lCXlxTOhcX70jxJAbpolyGlIxQK2nst+6bFhq3Xzdmc=";
-  opencodeNodeModulesHash = "sha256-0rpyP6nqK4FrJNjl0WV5adPjEQhe8a55RM7CgP9wlak=";
+  opencodeVersion = "1.18.32";
+  opencodeSrcHash = "sha256-h5AmK9R0Clk+LT0Tmmfg7iXa6dXNlPi2I5xCjTDRdcg=";
+  opencodeNodeModulesHash = "sha256-MJB1szM+ms2cdEzf2mhhWIkE5+owvuvJf5dR74Wvpw0=";
   opencodeSrc = pkgs.fetchFromGitHub {
     owner = "anomalyco";
     repo = "opencode";
     tag = "v${opencodeVersion}";
     hash = opencodeSrcHash;
   };
-  opencode-latest = pkgs.opencode.overrideAttrs (final: old: {
+  opencode-latest = pkgs.opencode.overrideAttrs (old: {
     version = opencodeVersion;
     src = opencodeSrc;
-    passthru =
-      old.passthru
-      // {
-        node_modules = old.passthru.node_modules.overrideAttrs {
-          outputHash = opencodeNodeModulesHash;
-        };
-      };
+    node_modules = old.node_modules.overrideAttrs {
+      version = opencodeVersion;
+      src = opencodeSrc;
+      outputHash = opencodeNodeModulesHash;
+    };
   });
   # OPENCODE_UPDATE_END
+  # COPILOT_UPDATE_START - Do not edit manually, use update_copilot.sh
+  copilotVersion = "1.0.83";
+  copilotHash = "sha256-yeOD2odEuEuqd33Spbxses1uQ1c2ALMNa9XTz8FTX7o=";
+  # COPILOT_UPDATE_END
+  copilot-cli = pkgs.stdenv.mkDerivation {
+    pname = "copilot-cli";
+    version = copilotVersion;
+    src = pkgs.fetchurl {
+      url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-${copilotVersion}.tgz";
+      hash = copilotHash;
+    };
+    unpackPhase = ''
+      mkdir -p $out/lib/copilot-cli
+      tar -xzf $src -C $out/lib/copilot-cli --strip-components=1
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      chmod +x $out/lib/copilot-cli/copilot
+      ln -s $out/lib/copilot-cli/copilot $out/bin/copilot
+    '';
+    dontStrip = true;
+  };
 in {
   home.stateVersion = "25.05";
   home.username = "felix";
@@ -68,8 +88,11 @@ in {
     asciinema-agg
     httpie
     gh
+    gitea
+    tea
     delta
     opencode-latest
+    copilot-cli
     openssl
     exiftool
     inputs.codex-cli-nix.packages.${pkgs.system}.default
@@ -101,5 +124,9 @@ in {
   home.file.".claude/statusline.ts" = {
     source = ../.claude/statusline.ts;
     executable = true;
+  };
+  home.file.".claude/themes" = {
+    source = ../.claude/themes;
+    recursive = true;
   };
 }
