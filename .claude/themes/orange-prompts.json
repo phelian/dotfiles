@@ -1,0 +1,9 @@
+{
+  "name": "Orange prompts",
+  "base": "dark",
+  "overrides": {
+    "userMessageBackground": "#7a3d00",
+    "userMessageBackgroundHover": "#9a4e00",
+    "briefLabelYou": "#ffa500"
+  }
+}
