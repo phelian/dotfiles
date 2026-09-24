@@ -13,14 +13,16 @@
     tag = "v${opencodeVersion}";
     hash = opencodeSrcHash;
   };
-  opencode-latest = pkgs.opencode.overrideAttrs (old: {
+  opencode-latest = pkgs.opencode.overrideAttrs (final: old: {
     version = opencodeVersion;
     src = opencodeSrc;
-    node_modules = old.node_modules.overrideAttrs {
-      version = opencodeVersion;
-      src = opencodeSrc;
-      outputHash = opencodeNodeModulesHash;
-    };
+    passthru =
+      old.passthru
+      // {
+        node_modules = old.passthru.node_modules.overrideAttrs {
+          outputHash = opencodeNodeModulesHash;
+        };
+      };
   });
   # OPENCODE_UPDATE_END
   # COPILOT_UPDATE_START - Do not edit manually, use update_copilot.sh
