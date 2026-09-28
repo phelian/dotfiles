@@ -4,30 +4,29 @@
   ...
 }: let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "1.18.32";
-  opencodeSrcHash = "sha256-h5AmK9R0Clk+LT0Tmmfg7iXa6dXNlPi2I5xCjTDRdcg=";
-  opencodeNodeModulesHash = "sha256-MJB1szM+ms2cdEzf2mhhWIkE5+owvuvJf5dR74Wvpw0=";
-  opencodeSrc = pkgs.fetchFromGitHub {
-    owner = "anomalyco";
-    repo = "opencode";
-    tag = "v${opencodeVersion}";
-    hash = opencodeSrcHash;
-  };
-  opencode-latest = pkgs.opencode.overrideAttrs (final: old: {
+  opencodeVersion = "2.0.16";
+  opencodeHash = "sha256-ChRGIx+R3luA4E/9xu7Fhoyl0h+ipmB2F0ze4TyydME=";
+  opencode-latest = pkgs.stdenv.mkDerivation {
+    pname = "opencode";
     version = opencodeVersion;
-    src = opencodeSrc;
-    passthru =
-      old.passthru
-      // {
-        node_modules = old.passthru.node_modules.overrideAttrs {
-          outputHash = opencodeNodeModulesHash;
-        };
-      };
-  });
+    src = pkgs.fetchurl {
+      url = "https://registry.npmjs.org/@opencode/cli-darwin-arm64/-/cli-darwin-arm64-${opencodeVersion}.tgz";
+      hash = opencodeHash;
+    };
+    unpackPhase = ''
+      tar --extract --gzip --file "$src"
+    '';
+    installPhase = ''
+      mkdir -p "$out/bin"
+      cp package/bin/opencode "$out/bin/opencode"
+      chmod +x "$out/bin/opencode"
+    '';
+    dontStrip = true;
+  };
   # OPENCODE_UPDATE_END
   # COPILOT_UPDATE_START - Do not edit manually, use update_copilot.sh
-  copilotVersion = "1.0.83";
-  copilotHash = "sha256-yeOD2odEuEuqd33Spbxses1uQ1c2ALMNa9XTz8FTX7o=";
+  copilotVersion = "1.0.88";
+  copilotHash = "sha256-XF7YlIOyknLhZlxX233aivyazO94PmJrcxOJwUGkRRo=";
   # COPILOT_UPDATE_END
   copilot-cli = pkgs.stdenv.mkDerivation {
     pname = "copilot-cli";
@@ -94,6 +93,7 @@ in {
     tea
     delta
     opencode-latest
+    uv
     copilot-cli
     openssl
     exiftool
@@ -121,6 +121,15 @@ in {
   };
   home.file.".claude/skills" = {
     source = ../.claude/skills;
+    recursive = true;
+  };
+  # Share the same provider-neutral skill with Codex and OpenCode.
+  home.file.".codex/skills/gh-stack" = {
+    source = ../.claude/skills/gh-stack;
+    recursive = true;
+  };
+  home.file.".config/opencode/skills/gh-stack" = {
+    source = ../.claude/skills/gh-stack;
     recursive = true;
   };
   home.file.".claude/statusline.ts" = {
