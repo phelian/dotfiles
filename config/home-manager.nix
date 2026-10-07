@@ -4,8 +4,8 @@
   ...
 }: let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "2.0.16";
-  opencodeHash = "sha256-ChRGIx+R3luA4E/9xu7Fhoyl0h+ipmB2F0ze4TyydME=";
+  opencodeVersion = "2.0.18";
+  opencodeHash = "sha256-QRoYFuQYIJIude+CAQP3pVB6vG1Mgo22SOziEnsQo68=";
   opencode-latest = pkgs.stdenv.mkDerivation {
     pname = "opencode";
     version = opencodeVersion;
@@ -25,8 +25,8 @@
   };
   # OPENCODE_UPDATE_END
   # COPILOT_UPDATE_START - Do not edit manually, use update_copilot.sh
-  copilotVersion = "1.0.88";
-  copilotHash = "sha256-XF7YlIOyknLhZlxX233aivyazO94PmJrcxOJwUGkRRo=";
+  copilotVersion = "1.0.92";
+  copilotHash = "sha256-+1tg489I9K73CbfL1w06ZD1lZmT7XVL6xQ2v4k5Xu7U=";
   # COPILOT_UPDATE_END
   copilot-cli = pkgs.stdenv.mkDerivation {
     pname = "copilot-cli";
