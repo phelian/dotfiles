@@ -4,8 +4,8 @@
   ...
 }: let
   # OPENCODE_UPDATE_START - Do not edit manually, use update_opencode.sh
-  opencodeVersion = "2.0.24";
-  opencodeHash = "sha256-fwPN/ZC/DORdSmbxvtfnZ+I7VGetGTqEVefG+7HquaE=";
+  opencodeVersion = "2.0.28";
+  opencodeHash = "sha256-PPIpzDrdHxyqd+V6J8mDTYF52/u2lPnzboat1rkrUSE=";
   opencode-latest = pkgs.stdenv.mkDerivation {
     pname = "opencode";
     version = opencodeVersion;
