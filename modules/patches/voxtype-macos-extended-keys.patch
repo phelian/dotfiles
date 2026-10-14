@@ -1,0 +1,138 @@
+diff --git a/config/default.toml b/config/default.toml
+index e037d508..4ef5a189 100644
+--- a/config/default.toml
++++ b/config/default.toml
+@@ -29,6 +29,7 @@ enabled = false
+ 
+ # Key to hold for push-to-talk (when enabled = true)
+ # Common choices: SCROLLLOCK, PAUSE, RIGHTALT, F13-F24
++# On macOS: F13-F20 supported (PrintScreen/ScrollLock/Pause arrive as F13/F14/F15)
+ # Use `evtest` to find key names for your keyboard
+ key = "SCROLLLOCK"
+ 
+diff --git a/docs/CONFIGURATION.md b/docs/CONFIGURATION.md
+index 9e241540..4a2f436e 100644
+--- a/docs/CONFIGURATION.md
++++ b/docs/CONFIGURATION.md
+@@ -94,7 +94,7 @@ The main key to hold for recording. Must be a valid Linux evdev key name.
+ - `SCROLLLOCK` - Scroll Lock key (recommended)
+ - `PAUSE` - Pause/Break key
+ - `RIGHTALT` - Right Alt key
+-- `F13` through `F24` - Extended function keys
++- `F13` through `F24` - Extended function keys (on macOS, `F13`–`F20` are supported; `F21`–`F24` are Linux-only; PC keyboards' PrintScreen/ScrollLock/Pause keys arrive as `F13`/`F14`/`F15`, so both F-key names and `PRINTSCREEN`/`SCROLLLOCK`/`PAUSE` work for them)
+ - `MEDIA` - Media key (often a dedicated button on multimedia keyboards)
+ - `RECORD` - Record key
+ - `INSERT` - Insert key
+diff --git a/src/config/default_config.rs b/src/config/default_config.rs
+index 4f6f5a8d..632943e9 100644
+--- a/src/config/default_config.rs
++++ b/src/config/default_config.rs
+@@ -16,6 +16,7 @@ state_file = "auto"
+ [hotkey]
+ # Key to hold for push-to-talk
+ # Common choices: SCROLLLOCK, PAUSE, RIGHTALT, F13-F24
++# On macOS: F13-F20 supported (PrintScreen/ScrollLock/Pause arrive as F13/F14/F15)
+ # Use `evtest` to find key names for your keyboard
+ key = "SCROLLLOCK"
+ 
+diff --git a/src/hotkey_macos.rs b/src/hotkey_macos.rs
+index 8cac746e..930959c3 100644
+--- a/src/hotkey_macos.rs
++++ b/src/hotkey_macos.rs
+@@ -200,6 +200,19 @@ fn parse_key_name(name: &str) -> Option<Key> {
+         "F11" => Some(Key::F11),
+         "F12" => Some(Key::F12),
+ 
++        // F13-F20: rdev 0.5.3 has no Key::F13+ variants on macOS, so keys
++        // beyond F12 arrive as Key::Unknown(keycode) using Apple's Carbon
++        // virtual keycodes (Events.h kVK_F13..kVK_F20). F21+ have no macOS
++        // virtual keycodes and stay unsupported (fall through to `None`).
++        "F13" => Some(Key::Unknown(105)),
++        "F14" => Some(Key::Unknown(107)),
++        "F15" => Some(Key::Unknown(113)),
++        "F16" => Some(Key::Unknown(106)),
++        "F17" => Some(Key::Unknown(64)),
++        "F18" => Some(Key::Unknown(79)),
++        "F19" => Some(Key::Unknown(80)),
++        "F20" => Some(Key::Unknown(90)),
++
+         // Modifier keys
+         "LEFTALT" | "LEFTOPT" | "LEFTOPTION" | "ALT" | "OPTION" => Some(Key::Alt),
+         "RIGHTALT" | "RIGHTOPT" | "RIGHTOPTION" => Some(Key::AltGr),
+@@ -231,9 +244,13 @@ fn parse_key_name(name: &str) -> Option<Key> {
+         // Other
+         "DELETE" => Some(Key::Delete),
+         "INSERT" => Some(Key::Insert),
+-        "PAUSE" => Some(Key::Pause),
+-        "SCROLLLOCK" => Some(Key::ScrollLock),
+-        "PRINTSCREEN" => Some(Key::PrintScreen),
++        // macOS's HID driver translates a PC keyboard's PrintScreen/ScrollLock/
++        // Pause keys into F13/F14/F15, so these alias the same F13/F14/F15
++        // Key::Unknown keycodes above rather than rdev's Key::PrintScreen/
++        // ScrollLock/Pause, which rdev never emits on macOS.
++        "PRINTSCREEN" => Some(Key::Unknown(105)),
++        "SCROLLLOCK" => Some(Key::Unknown(107)),
++        "PAUSE" => Some(Key::Unknown(113)),
+         "FN" | "FUNCTION" | "GLOBE" => Some(Key::Function),
+ 
+         // Letters (for completeness, though unusual for hotkeys)
+@@ -327,7 +344,35 @@ mod tests {
+         assert_eq!(parse_key_name("RIGHTALT"), Some(Key::AltGr));
+         assert_eq!(parse_key_name("rightoption"), Some(Key::AltGr));
+         assert_eq!(parse_key_name("CMD"), Some(Key::MetaLeft));
+-        assert_eq!(parse_key_name("SCROLLLOCK"), Some(Key::ScrollLock));
+         assert_eq!(parse_key_name("UNKNOWN"), None);
+     }
++
++    #[test]
++    fn test_parse_key_name_f13_f20_use_apple_virtual_keycodes() {
++        // rdev 0.5.3 has no Key::F13+ variants on macOS; keys beyond F12 arrive
++        // as Key::Unknown(keycode) using Apple's Carbon virtual keycodes.
++        assert_eq!(parse_key_name("F13"), Some(Key::Unknown(105)));
++        assert_eq!(parse_key_name("f20"), Some(Key::Unknown(90)));
++        assert_eq!(parse_key_name("F14"), Some(Key::Unknown(107)));
++        assert_eq!(parse_key_name("F15"), Some(Key::Unknown(113)));
++        assert_eq!(parse_key_name("F16"), Some(Key::Unknown(106)));
++        assert_eq!(parse_key_name("F17"), Some(Key::Unknown(64)));
++        assert_eq!(parse_key_name("F18"), Some(Key::Unknown(79)));
++        assert_eq!(parse_key_name("F19"), Some(Key::Unknown(80)));
++    }
++
++    #[test]
++    fn test_parse_key_name_printscreen_scrolllock_pause_alias_macos_f_keys() {
++        // macOS's HID driver translates a PC keyboard's PrintScreen/ScrollLock/Pause
++        // into F13/F14/F15, so these names must resolve to the same keycodes.
++        assert_eq!(parse_key_name("PRINTSCREEN"), Some(Key::Unknown(105)));
++        assert_eq!(parse_key_name("SCROLLLOCK"), Some(Key::Unknown(107)));
++        assert_eq!(parse_key_name("PAUSE"), Some(Key::Unknown(113)));
++    }
++
++    #[test]
++    fn test_parse_key_name_f21_unsupported() {
++        // macOS has no virtual keycodes for F21+; these must remain unsupported.
++        assert_eq!(parse_key_name("F21"), None);
++    }
+ }
+diff --git a/src/output/cgevent.rs b/src/output/cgevent.rs
+index b2de5bfd..326ed853 100644
+--- a/src/output/cgevent.rs
++++ b/src/output/cgevent.rs
+@@ -151,11 +151,18 @@ impl CGEventOutput {
+             .map_err(|_| OutputError::InjectionFailed("Failed to create keyboard event".into()))?;
+ 
+         event.set_string_from_utf16_unchecked(&utf16_buf);
++        // Pin empty modifier flags: Fn-range hotkeys (F13-F20, which is what
++        // PrintScreen/ScrollLock/Pause arrive as on macOS) latch the fn flag
++        // in the session input state past key release. Without explicit flags
++        // the event inherits it and apps treat the keystroke as a function
++        // chord instead of text insertion, silently dropping the output.
++        event.set_flags(CGEventFlags::empty());
+         event.post(CGEventTapLocation::HID);
+ 
+         // Key up event
+         let event_up = CGEvent::new_keyboard_event(source.clone(), 0, false)
+             .map_err(|_| OutputError::InjectionFailed("Failed to create key up event".into()))?;
++        event_up.set_flags(CGEventFlags::empty());
+         event_up.post(CGEventTapLocation::HID);
+ 
+         Ok(())

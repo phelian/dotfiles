@@ -1,0 +1,65 @@
+diff --git a/src/hotkey_macos.rs b/src/hotkey_macos.rs
+index 930959c..07a6fd5 100644
+--- a/src/hotkey_macos.rs
++++ b/src/hotkey_macos.rs
+@@ -40,7 +40,7 @@ pub trait HotkeyListener: Send {
+ 
+ /// rdev-based hotkey listener for macOS
+ pub struct RdevHotkeyListener {
+-    target_key: Key,
++    target_keys: Vec<Key>,
+     cancel_key: Option<Key>,
+     running: Arc<AtomicBool>,
+     thread_handle: Option<std::thread::JoinHandle<()>>,
+@@ -49,13 +49,21 @@ pub struct RdevHotkeyListener {
+ impl RdevHotkeyListener {
+     /// Create a new rdev hotkey listener
+     pub fn new(config: &HotkeyConfig) -> Result<Self> {
+-        let target_key = parse_key_name(&config.key)
+-            .ok_or_else(|| HotkeyError::UnknownKey(config.key.clone()))?;
++        let target_keys = config
++            .key
++            .split(',')
++            .map(str::trim)
++            .filter(|name| !name.is_empty())
++            .map(|name| parse_key_name(name).ok_or_else(|| HotkeyError::UnknownKey(name.to_string())))
++            .collect::<std::result::Result<Vec<_>, _>>()?;
++        if target_keys.is_empty() {
++            return Err(HotkeyError::UnknownKey(config.key.clone()).into());
++        }
+ 
+         let cancel_key = config.cancel_key.as_ref().and_then(|k| parse_key_name(k));
+ 
+         Ok(Self {
+-            target_key,
++            target_keys,
+             cancel_key,
+             running: Arc::new(AtomicBool::new(false)),
+             thread_handle: None,
+@@ -76,7 +84,7 @@ impl HotkeyListener for RdevHotkeyListener {
+         }
+ 
+         let (tx, rx) = mpsc::channel(32);
+-        let target_key = self.target_key;
++        let target_keys = self.target_keys.clone();
+         let cancel_key = self.cancel_key;
+         let running = self.running.clone();
+         running.store(true, Ordering::SeqCst);
+@@ -134,7 +142,7 @@ impl HotkeyListener for RdevHotkeyListener {
+ 
+                 match event.event_type {
+                     EventType::KeyPress(key) => {
+-                        if key == target_key {
++                        if target_keys.contains(&key) {
+                             let mut last = last_press_clone.lock().unwrap();
+                             if last.elapsed() > Duration::from_millis(debounce_ms) {
+                                 *last = Instant::now();
+@@ -148,7 +156,7 @@ impl HotkeyListener for RdevHotkeyListener {
+                         }
+                     }
+                     EventType::KeyRelease(key) => {
+-                        if key == target_key {
++                        if target_keys.contains(&key) {
+                             let mut last = last_release_clone.lock().unwrap();
+                             if last.elapsed() > Duration::from_millis(debounce_ms) {
+                                 *last = Instant::now();
