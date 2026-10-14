@@ -18,6 +18,9 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    pi = {
+      url = "github:earendil-works/pi/stable";
+    };
   };
 
   outputs = inputs @ {

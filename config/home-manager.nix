@@ -98,6 +98,7 @@ in {
     openssl
     exiftool
     inputs.codex-cli-nix.packages.${pkgs.system}.default
+    inputs.pi.packages.${pkgs.system}.default
 
     # Entertainment
     spotify
