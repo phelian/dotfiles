@@ -97,6 +97,7 @@ in {
     copilot-cli
     openssl
     exiftool
+    _7zz
     inputs.codex-cli-nix.packages.${pkgs.system}.default
     inputs.pi.packages.${pkgs.system}.default
 
