@@ -1,0 +1,433 @@
+diff --git a/src/config/hotkey.rs b/src/config/hotkey.rs
+index 5746768..35db977 100644
+--- a/src/config/hotkey.rs
++++ b/src/config/hotkey.rs
+@@ -52,6 +52,9 @@ pub struct HotkeyConfig {
+     #[serde(default)]
+     pub model_modifier: Option<String>,
+ 
++    #[serde(default)]
++    pub secondary_key: Option<String>,
++
+     /// Optional modifier keys that activate named profiles (evdev KEY_* names, without KEY_ prefix)
+     /// When held while pressing the hotkey, activates the named profile for post-processing
+     /// Example: { "LEFTSHIFT" = "translate" } activates [profiles.translate] when Shift is held
+@@ -68,6 +71,7 @@ impl Default for HotkeyConfig {
+             enabled: true,
+             cancel_key: None,
+             model_modifier: None,
++            secondary_key: None,
+             profile_modifiers: HashMap::new(),
+         }
+     }
+diff --git a/src/config/root.rs b/src/config/root.rs
+index 163fe1d..e6badec 100644
+--- a/src/config/root.rs
++++ b/src/config/root.rs
+@@ -29,6 +29,9 @@ pub struct Config {
+     #[serde(default)]
+     pub engine: TranscriptionEngine,
+ 
++    #[serde(default)]
++    pub secondary_engine: Option<TranscriptionEngine>,
++
+     /// Parakeet configuration (optional, only used when engine = "parakeet")
+     #[serde(default)]
+     pub parakeet: Option<ParakeetConfig>,
+@@ -118,6 +121,7 @@ impl Default for Config {
+             whisper: WhisperConfig::default(),
+             output: OutputConfig::default(),
+             engine: TranscriptionEngine::default(),
++            secondary_engine: None,
+             parakeet: None,
+             moonshine: None,
+             sensevoice: None,
+diff --git a/src/config/schema.rs b/src/config/schema.rs
+index accdc7c..e3b1d94 100644
+--- a/src/config/schema.rs
++++ b/src/config/schema.rs
+@@ -300,6 +300,15 @@ pub const CONFIG_KEYS: &[KeySpec] = &[
+         "Transcription engine",
+         "Which ASR engine transcribes your audio. Non-whisper engines must be compiled into the binary.",
+     ),
++    spec(
++        "secondary_engine",
++        "",
++        "secondary_engine",
++        closed(ENGINE_CHOICES),
++        "Engine",
++        "Secondary engine",
++        "Engine used when hotkey.secondary_key is pressed or hotkey.model_modifier is held. Unset disables the secondary engine.",
++    ),
+     // whisper
+     spec(
+         "whisper.model",
+@@ -773,6 +782,15 @@ pub const CONFIG_KEYS: &[KeySpec] = &[
+         "Push-to-talk key",
+         "evdev KEY_* name without the prefix, e.g. SCROLLLOCK or F13.",
+     ),
++    spec(
++        "hotkey.secondary_key",
++        "hotkey",
++        "secondary_key",
++        open(HOTKEY_KEY_CHOICES),
++        "Hotkey",
++        "Secondary-engine key",
++        "Key that records with secondary_engine instead of engine.",
++    ),
+     spec(
+         "hotkey.mode",
+         "hotkey",
+@@ -798,7 +816,7 @@ pub const CONFIG_KEYS: &[KeySpec] = &[
+         open(HOTKEY_MODIFIER_CHOICES),
+         "Hotkey",
+         "Secondary-model modifier",
+-        "Hold this alongside the hotkey to transcribe with whisper.secondary_model.",
++        "Hold this alongside the hotkey to transcribe with secondary_engine, or with whisper.secondary_model when no secondary engine is set.",
+     ),
+     // -- Audio --------------------------------------------------------------
+     spec(
+@@ -1671,6 +1689,10 @@ pub fn resolve(key: &str, cfg: &Config) -> Option<Json> {
+ 
+     let v = match key {
+         "engine" => json!(cfg.engine.name()),
++        "secondary_engine" => match cfg.secondary_engine.as_ref() {
++            Some(e) => json!(e.name()),
++            None => Json::Null,
++        },
+ 
+         "whisper.model" => json!(cfg.whisper.model),
+         "whisper.secondary_model" => opt_str(cfg.whisper.secondary_model.as_ref()),
+@@ -1772,6 +1794,7 @@ pub fn resolve(key: &str, cfg: &Config) -> Option<Json> {
+         }),
+         "hotkey.cancel_key" => opt_str(cfg.hotkey.cancel_key.as_ref()),
+         "hotkey.model_modifier" => opt_str(cfg.hotkey.model_modifier.as_ref()),
++        "hotkey.secondary_key" => opt_str(cfg.hotkey.secondary_key.as_ref()),
+ 
+         "audio.device" => json!(cfg.audio.device),
+         "audio.max_duration_secs" => json!(cfg.audio.max_duration_secs),
+diff --git a/src/daemon.rs b/src/daemon.rs
+index f40ed70..da808a7 100644
+--- a/src/daemon.rs
++++ b/src/daemon.rs
+@@ -763,6 +763,12 @@ async fn write_transcription_to_file(
+ 
+ /// Read and consume the model override file
+ /// Returns the model name if the file exists, None otherwise
++pub const SECONDARY_ENGINE_OVERRIDE: &str = "secondary-engine";
++
++fn is_secondary_engine_override(model_override: Option<&str>) -> bool {
++    model_override == Some(SECONDARY_ENGINE_OVERRIDE)
++}
++
+ fn read_model_override() -> Option<String> {
+     let override_file = Config::runtime_dir().join("model_override");
+     if !override_file.exists() {
+@@ -859,6 +865,7 @@ pub struct Daemon {
+     // instance (#643) — get_transcriber_for_recording re-creates it on the
+     // next recording when it finds this empty.
+     transcriber_preloaded: Option<Arc<dyn Transcriber>>,
++    transcriber_secondary: Option<Arc<dyn Transcriber>>,
+     // Background tasks for eager chunk transcriptions (chunk_index, task)
+     eager_chunk_tasks: Vec<(
+         usize,
+@@ -987,6 +994,7 @@ impl Daemon {
+             transcription_task: None,
+             active_transcriber: None,
+             transcriber_preloaded: None,
++            transcriber_secondary: None,
+             eager_chunk_tasks: Vec::new(),
+             vad,
+             meeting_daemon: None,
+@@ -1261,7 +1269,12 @@ impl Daemon {
+         cleanup_cancel_file();
+         // Clone out of the field so the borrow doesn't overlap the
+         // `&mut self` capture start below.
+-        let Some(transcriber) = self.transcriber_preloaded.clone() else {
++        let preloaded = if is_secondary_engine_override(model_override.as_deref()) {
++            self.transcriber_secondary.clone()
++        } else {
++            self.transcriber_preloaded.clone()
++        };
++        let Some(transcriber) = preloaded else {
+             return false;
+         };
+         if transcriber.as_streaming().is_none() {
+@@ -1761,6 +1774,9 @@ impl Daemon {
+         &mut self,
+         model_override: Option<&str>,
+     ) -> std::result::Result<Arc<dyn Transcriber>, ()> {
++        if is_secondary_engine_override(model_override) {
++            return self.get_secondary_transcriber().await;
++        }
+         if self.config.on_demand_loading() {
+             // Wait for background model load task
+             if let Some(task) = self.model_load_task.take() {
+@@ -1858,6 +1874,57 @@ impl Daemon {
+         }
+     }
+ 
++    fn secondary_config(&self) -> Option<Config> {
++        let engine = self.config.secondary_engine?;
++        let mut config = self.config.clone();
++        config.engine = engine;
++        Some(config)
++    }
++
++    async fn get_secondary_transcriber(
++        &mut self,
++    ) -> std::result::Result<Arc<dyn Transcriber>, ()> {
++        if let Some(t) = self.transcriber_secondary.clone() {
++            return Ok(t);
++        }
++        let Some(config) = self.secondary_config() else {
++            tracing::error!("Secondary engine requested but secondary_engine is not configured");
++            self.play_feedback(SoundEvent::Error);
++            return Err(());
++        };
++        tracing::info!("Loading secondary transcription model: {}", config.model_name());
++        let created = tokio::task::spawn_blocking(move || {
++            crate::transcribe::create_transcriber(&config)
++        })
++        .await;
++        match created {
++            Ok(Ok(t)) => {
++                let t: Arc<dyn Transcriber> = Arc::from(t);
++                self.transcriber_secondary = Some(t.clone());
++                Ok(t)
++            }
++            Ok(Err(e)) => {
++                tracing::error!("Failed to create secondary transcriber: {}", e);
++                self.play_feedback(SoundEvent::Error);
++                Err(())
++            }
++            Err(e) => {
++                tracing::error!("Secondary transcriber creation task panicked: {}", e);
++                self.play_feedback(SoundEvent::Error);
++                Err(())
++            }
++        }
++    }
++
++    fn prepare_secondary_transcriber(&self) {
++        if let Some(ref t) = self.transcriber_secondary {
++            let transcriber = t.clone();
++            tokio::task::spawn_blocking(move || {
++                transcriber.prepare();
++            });
++        }
++    }
++
+     /// Update the meeting state file if configured
+     fn update_meeting_state(&self, state_name: &str, meeting_id: Option<&str>) {
+         if let Some(ref path) = self.meeting_state_file_path {
+@@ -3172,7 +3239,11 @@ impl Daemon {
+         let mut hotkey_listener: Option<Box<dyn hotkey::HotkeyListener>> =
+             if self.config.hotkey.enabled {
+                 tracing::info!("Hotkey: {}", self.config.hotkey.key);
+-                let secondary_model = self.config.whisper.secondary_model.clone();
++                let secondary_model = self
++                .config
++                .secondary_engine
++                .map(|_| SECONDARY_ENGINE_OVERRIDE.to_string())
++                .or_else(|| self.config.whisper.secondary_model.clone());
+                 Some(hotkey::create_listener(
+                     &self.config.hotkey,
+                     secondary_model,
+@@ -3191,7 +3262,11 @@ impl Daemon {
+             .enabled
+         {
+             tracing::info!("Hotkey: {}", self.config.hotkey.key);
+-            let secondary_model = self.config.whisper.secondary_model.clone();
++            let secondary_model = self
++                .config
++                .secondary_engine
++                .map(|_| SECONDARY_ENGINE_OVERRIDE.to_string())
++                .or_else(|| self.config.whisper.secondary_model.clone());
+             match hotkey::create_listener(&self.config.hotkey, secondary_model) {
+                 Ok(listener) => Some(listener),
+                 Err(e) => {
+@@ -3277,6 +3352,22 @@ impl Daemon {
+             tracing::info!("On-demand loading enabled, model will be loaded when recording starts");
+         }
+ 
++        if !self.config.on_demand_loading() {
++            if let Some(config) = self.secondary_config() {
++                tracing::info!("Loading secondary transcription model: {}", config.model_name());
++                self.transcriber_secondary = Some(Arc::from(
++                    crate::transcribe::create_transcriber(&config)?,
++                ));
++            }
++        }
++
++        if let Some(engine) = self.config.secondary_engine {
++            tracing::info!("Secondary engine configured: {}", engine.name());
++            if let Some(ref key) = self.config.hotkey.secondary_key {
++                tracing::info!("Secondary engine key: {}", key);
++            }
++        }
++
+         // Log secondary model if configured
+         if let Some(ref secondary) = self.config.whisper.secondary_model {
+             tracing::info!("Secondary model configured: {}", secondary);
+@@ -3365,7 +3456,9 @@ impl Daemon {
+                                 }
+ 
+                                 // Prepare model for transcription
+-                                if self.config.on_demand_loading() {
++                                if is_secondary_engine_override(model_override.as_deref()) {
++                                    self.prepare_secondary_transcriber();
++                                } else if self.config.on_demand_loading() {
+                                     // Start model loading in background
+                                     match self.config.engine {
+                                         crate::config::TranscriptionEngine::Whisper => {
+@@ -3576,7 +3669,9 @@ impl Daemon {
+                                 }
+ 
+                                 // Prepare model for transcription
+-                                if self.config.on_demand_loading() {
++                                if is_secondary_engine_override(model_override.as_deref()) {
++                                    self.prepare_secondary_transcriber();
++                                } else if self.config.on_demand_loading() {
+                                     // Start model loading in background
+                                     match self.config.engine {
+                                         crate::config::TranscriptionEngine::Whisper => {
+@@ -4092,7 +4187,9 @@ impl Daemon {
+                         }
+ 
+                         // Prepare model for transcription
+-                        if self.config.on_demand_loading() {
++                        if is_secondary_engine_override(model_override.as_deref()) {
++                            self.prepare_secondary_transcriber();
++                        } else if self.config.on_demand_loading() {
+                             // Start model loading in background
+                             match self.config.engine {
+                                 crate::config::TranscriptionEngine::Whisper => {
+diff --git a/src/hotkey_macos.rs b/src/hotkey_macos.rs
+index 07a6fd5..f72f761 100644
+--- a/src/hotkey_macos.rs
++++ b/src/hotkey_macos.rs
+@@ -41,6 +41,9 @@ pub trait HotkeyListener: Send {
+ /// rdev-based hotkey listener for macOS
+ pub struct RdevHotkeyListener {
+     target_keys: Vec<Key>,
++    secondary_keys: Vec<Key>,
++    modifier_key: Option<Key>,
++    secondary_override: Option<String>,
+     cancel_key: Option<Key>,
+     running: Arc<AtomicBool>,
+     thread_handle: Option<std::thread::JoinHandle<()>>,
+@@ -48,22 +51,33 @@ pub struct RdevHotkeyListener {
+ 
+ impl RdevHotkeyListener {
+     /// Create a new rdev hotkey listener
+-    pub fn new(config: &HotkeyConfig) -> Result<Self> {
+-        let target_keys = config
+-            .key
+-            .split(',')
+-            .map(str::trim)
+-            .filter(|name| !name.is_empty())
+-            .map(|name| parse_key_name(name).ok_or_else(|| HotkeyError::UnknownKey(name.to_string())))
+-            .collect::<std::result::Result<Vec<_>, _>>()?;
++    pub fn new(config: &HotkeyConfig, secondary_override: Option<String>) -> Result<Self> {
++        let target_keys = parse_key_list(&config.key)?;
+         if target_keys.is_empty() {
+             return Err(HotkeyError::UnknownKey(config.key.clone()).into());
+         }
+ 
++        let secondary_keys = match config.secondary_key.as_deref() {
++            Some(keys) => parse_key_list(keys)?,
++            None => Vec::new(),
++        };
++        let modifier_key = match config.model_modifier.as_deref() {
++            Some(name) => Some(parse_key_name(name).ok_or_else(|| HotkeyError::UnknownKey(name.to_string()))?),
++            None => None,
++        };
++        if secondary_override.is_none() && (!secondary_keys.is_empty() || modifier_key.is_some()) {
++            tracing::warn!(
++                "hotkey.secondary_key / hotkey.model_modifier set but neither secondary_engine nor whisper.secondary_model is configured"
++            );
++        }
++
+         let cancel_key = config.cancel_key.as_ref().and_then(|k| parse_key_name(k));
+ 
+         Ok(Self {
+             target_keys,
++            secondary_keys,
++            modifier_key,
++            secondary_override,
+             cancel_key,
+             running: Arc::new(AtomicBool::new(false)),
+             thread_handle: None,
+@@ -85,6 +99,10 @@ impl HotkeyListener for RdevHotkeyListener {
+ 
+         let (tx, rx) = mpsc::channel(32);
+         let target_keys = self.target_keys.clone();
++        let secondary_keys = self.secondary_keys.clone();
++        let modifier_key = self.modifier_key;
++        let secondary_override = self.secondary_override.clone();
++        let modifier_held = Arc::new(AtomicBool::new(false));
+         let cancel_key = self.cancel_key;
+         let running = self.running.clone();
+         running.store(true, Ordering::SeqCst);
+@@ -142,12 +160,23 @@ impl HotkeyListener for RdevHotkeyListener {
+ 
+                 match event.event_type {
+                     EventType::KeyPress(key) => {
+-                        if target_keys.contains(&key) {
++                        if Some(key) == modifier_key {
++                            modifier_held.store(true, Ordering::SeqCst);
++                        }
++                        let is_primary = target_keys.contains(&key);
++                        let is_secondary = secondary_keys.contains(&key);
++                        if is_primary || is_secondary {
+                             let mut last = last_press_clone.lock().unwrap();
+                             if last.elapsed() > Duration::from_millis(debounce_ms) {
+                                 *last = Instant::now();
++                                let use_secondary =
++                                    is_secondary || modifier_held.load(Ordering::SeqCst);
+                                 let _ = tx_clone.blocking_send(HotkeyEvent::Pressed {
+-                                    model_override: None,
++                                    model_override: if use_secondary {
++                                        secondary_override.clone()
++                                    } else {
++                                        None
++                                    },
+                                     profile_override: None,
+                                 });
+                             }
+@@ -156,7 +185,10 @@ impl HotkeyListener for RdevHotkeyListener {
+                         }
+                     }
+                     EventType::KeyRelease(key) => {
+-                        if target_keys.contains(&key) {
++                        if Some(key) == modifier_key {
++                            modifier_held.store(false, Ordering::SeqCst);
++                        }
++                        if target_keys.contains(&key) || secondary_keys.contains(&key) {
+                             let mut last = last_release_clone.lock().unwrap();
+                             if last.elapsed() > Duration::from_millis(debounce_ms) {
+                                 *last = Instant::now();
+@@ -296,9 +328,20 @@ fn parse_key_name(name: &str) -> Option<Key> {
+ /// Create a hotkey listener for macOS
+ pub fn create_listener(
+     config: &HotkeyConfig,
+-    _secondary_model: Option<String>,
++    secondary_model: Option<String>,
+ ) -> Result<Box<dyn HotkeyListener>> {
+-    Ok(Box::new(RdevHotkeyListener::new(config)?))
++    Ok(Box::new(RdevHotkeyListener::new(config, secondary_model)?))
++}
++
++fn parse_key_list(keys: &str) -> Result<Vec<Key>> {
++    keys.split(',')
++        .map(str::trim)
++        .filter(|name| !name.is_empty())
++        .map(|name| {
++            parse_key_name(name)
++                .ok_or_else(|| HotkeyError::UnknownKey(name.to_string()).into())
++        })
++        .collect()
+ }
+ 
+ /// Check if Accessibility permission is granted by trying to create an event tap.

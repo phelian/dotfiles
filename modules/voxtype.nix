@@ -23,6 +23,7 @@
     patches = [
       ./patches/voxtype-macos-extended-keys.patch
       ./patches/voxtype-macos-multiple-hotkeys.patch
+      ./patches/voxtype-secondary-engine.patch
     ];
     cargoLock = {
       lockFile = "${voxtypeSrc}/Cargo.lock";
